@@ -1,5 +1,4 @@
 # Python runtime
-python_version==3.12
 
 # Web + DB
 Flask>=2.2
