@@ -1,0 +1,25 @@
+version: "3.8"
+services:
+  pricing-engine:
+    build: .
+    container_name: pricing-engine
+    env_file:
+      - config/.env.example
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./:/app
+    depends_on:
+      - mysql
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpw
+      MYSQL_DATABASE: pricing_db
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:

@@ -1,0 +1,15 @@
+[Unit]
+Description=Pricing Engine Flask API
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/pricing_engine
+EnvironmentFile=/opt/pricing_engine/config/.env
+ExecStart=/usr/bin/python3 /opt/pricing_engine/app.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

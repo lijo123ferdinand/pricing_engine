@@ -1,0 +1,33 @@
+# Pricing engine configuration
+pricing:
+  price_grid_relative: [-0.2, -0.1, 0, 0.05, 0.1, 0.2] # relative changes to test
+  min_margin: 0.10 # minimum required margin (10%)
+  max_discount: 0.30 # max discount allowed (30%)
+  daily_price_change_limit_pct: 0.15 # can't change price more than 15% per day
+  candidate_steps: 21 # optional for continuous grid around price
+  min_price: 0.5
+  max_price: 10000.0
+
+feature_store:
+  rolling_windows_days: [7, 14, 30]
+  lag_days: [1,2,3,7,14]
+
+etl:
+  batch_window_days: 1
+
+models:
+  demand:
+    model_type: lightgbm
+    params:
+      num_boost_round: 1000
+      early_stopping_rounds: 50
+      learning_rate: 0.05
+      num_leaves: 31
+  elasticity:
+    min_sales_threshold: 20
+    pvalue_threshold: 0.05
+
+monitoring:
+  mape_threshold: 0.25
+  elasticity_drift_threshold: 0.25
+  alert_emails: []
