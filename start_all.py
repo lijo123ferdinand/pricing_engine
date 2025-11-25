@@ -51,7 +51,7 @@ def wait_for_db(retries=30, delay=2):
     host = os.getenv("DB_HOST", "127.0.0.1")
     port = int(os.getenv("DB_PORT", 3306))
     user = os.getenv("DB_USER", "root")
-    password = os.getenv("DB_PASSWORD", "root")
+    password = os.getenv("DB_PASSWORD", "thbs123!")
     
     logger.info(f"Connecting to MySQL at {host}:{port}...")
     
@@ -74,7 +74,7 @@ def init_db():
     host = os.getenv("DB_HOST", "127.0.0.1")
     port = int(os.getenv("DB_PORT", 3306))
     user = os.getenv("DB_USER", "root")
-    password = os.getenv("DB_PASSWORD", "root")
+    password = os.getenv("DB_PASSWORD", "thbs123!")
     db_name = os.getenv("DB_NAME", "pricing_db")
     
     conn = pymysql.connect(host=host, port=port, user=user, password=password)
@@ -108,7 +108,7 @@ def seed_db():
     host = os.getenv("DB_HOST", "127.0.0.1")
     port = int(os.getenv("DB_PORT", 3306))
     user = os.getenv("DB_USER", "root")
-    password = os.getenv("DB_PASSWORD", "root")
+    password = os.getenv("DB_PASSWORD", "thbs123!")
     db_name = os.getenv("DB_NAME", "pricing_db")
     
     conn = pymysql.connect(host=host, port=port, user=user, password=password, database=db_name, 

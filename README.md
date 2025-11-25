@@ -244,7 +244,7 @@ pricing_engine/
 DB_HOST=127.0.0.1
 DB_PORT=3306
 DB_USER=root
-DB_PASSWORD=root
+DB_PASSWORD=thbs123!
 DB_NAME=pricing_db
 DB_MAX_CONN=10
 
