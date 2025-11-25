@@ -23,12 +23,12 @@ def build_features(orders_df, inventory_df, analytics_df, promotions_df, as_of_d
     start_14 = end_ts - pd.Timedelta(days=14)
     start_7 = end_ts - pd.Timedelta(days=7)
 
-    # Normalize dtypes
-    orders_df['order_ts'] = pd.to_datetime(orders_df['order_ts'])
-    analytics_df['event_ts'] = pd.to_datetime(analytics_df['event_ts'])
-    inventory_df['snapshot_ts'] = pd.to_datetime(inventory_df['snapshot_ts'])
-    promotions_df['start_ts'] = pd.to_datetime(promotions_df['start_ts'])
-    promotions_df['end_ts'] = pd.to_datetime(promotions_df['end_ts'])
+    # Normalize dtypes - handle both string and datetime objects
+    orders_df['order_ts'] = pd.to_datetime(orders_df['order_ts'], errors='coerce')
+    analytics_df['event_ts'] = pd.to_datetime(analytics_df['event_ts'], errors='coerce')
+    inventory_df['snapshot_ts'] = pd.to_datetime(inventory_df['snapshot_ts'], errors='coerce')
+    promotions_df['start_ts'] = pd.to_datetime(promotions_df['start_ts'], errors='coerce')
+    promotions_df['end_ts'] = pd.to_datetime(promotions_df['end_ts'], errors='coerce')
 
     skus = pd.Index(
         pd.concat([

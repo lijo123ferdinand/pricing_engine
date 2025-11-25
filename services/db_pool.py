@@ -17,7 +17,7 @@ load_dotenv()
 DB_HOST = os.getenv("DB_HOST", "127.0.0.1")
 DB_PORT = int(os.getenv("DB_PORT", 3306))
 DB_USER = os.getenv("DB_USER", "root")
-DB_PASSWORD = os.getenv("DB_PASSWORD", "")
+DB_PASSWORD = os.getenv("DB_PASSWORD", "root")
 DB_NAME = os.getenv("DB_NAME", "pricing_db")
 DB_MAX_CONN = int(os.getenv("DB_MAX_CONN", 10))
 
@@ -48,6 +48,17 @@ class SimpleMySQLPool:
             return self._pool.get(timeout=timeout)
         except Empty:
             raise RuntimeError("No DB connection available")
+    
+    def get_pandas_conn(self, timeout=5):
+        """Get a connection suitable for pandas read_sql (without DictCursor)"""
+        try:
+            conn = pymysql.connect(host=DB_HOST, port=DB_PORT, user=DB_USER,
+                                   password=DB_PASSWORD, database=DB_NAME,
+                                   autocommit=True)
+            return conn
+        except Exception as e:
+            logger.error(f"Failed to create pandas connection: {e}")
+            raise
 
     def return_conn(self, conn):
         try:
@@ -57,6 +68,13 @@ class SimpleMySQLPool:
                 conn.close()
             finally:
                 pass
+    
+    def close_pandas_conn(self, conn):
+        """Close a pandas connection (not returned to pool)"""
+        try:
+            conn.close()
+        except Exception:
+            pass
 
     def close_all(self):
         while not self._pool.empty():

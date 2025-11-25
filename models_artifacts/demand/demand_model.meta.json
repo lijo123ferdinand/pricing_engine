@@ -1,0 +1,17 @@
+{
+  "model_type": "lightgbm",
+  "mape": 1.0,
+  "mse": 1.0,
+  "trained_at": "2025-11-25T06:37:38.951794",
+  "feature_columns": [
+    "last_price",
+    "avg_price_7d",
+    "views_7d",
+    "addtocart_7d",
+    "conversion_7d",
+    "inventory_qty",
+    "promo_active",
+    "inventory_age_days"
+  ],
+  "saved_at": "2025-11-25T06:37:38.956517"
+}

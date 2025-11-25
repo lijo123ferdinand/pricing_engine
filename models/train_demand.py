@@ -61,13 +61,13 @@ def train_lightgbm(X, y, params, model_name="demand_model", model_dir="./models_
         'learning_rate': params.get('learning_rate', 0.05),
         'num_leaves': int(params.get('num_leaves', 31))
     }
+    callbacks = [lgb.early_stopping(stopping_rounds=int(params.get('early_stopping_rounds', 50)))]
     model = lgb.train(
         lgb_params,
         dtrain,
         num_boost_round=int(params.get('num_boost_round', 500)),
         valid_sets=[dvalid],
-        early_stopping_rounds=int(params.get('early_stopping_rounds', 50)),
-        verbose_eval=False
+        callbacks=callbacks
     )
     y_pred = model.predict(X_val, num_iteration=model.best_iteration)
     mape = mean_absolute_percentage_error(y_val, y_pred)

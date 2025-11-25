@@ -12,17 +12,17 @@ logger = logging.getLogger(__name__)
 
 def fetch_orders(since_days=60):
     pool = SimpleMySQLPool.instance()
-    conn = pool.get_conn()
+    conn = pool.get_pandas_conn()
     try:
         sql = f"SELECT * FROM orders WHERE order_ts >= DATE_SUB(NOW(), INTERVAL {since_days} DAY)"
         df = pd.read_sql(sql, conn)
         return df
     finally:
-        pool.return_conn(conn)
+        pool.close_pandas_conn(conn)
 
 def fetch_inventory_snapshot(latest_only=True):
     pool = SimpleMySQLPool.instance()
-    conn = pool.get_conn()
+    conn = pool.get_pandas_conn()
     try:
         if latest_only:
             sql = """
@@ -36,23 +36,23 @@ def fetch_inventory_snapshot(latest_only=True):
             df = pd.read_sql("SELECT * FROM inventory", conn)
         return df
     finally:
-        pool.return_conn(conn)
+        pool.close_pandas_conn(conn)
 
 def fetch_product_analytics(since_days=60):
     pool = SimpleMySQLPool.instance()
-    conn = pool.get_conn()
+    conn = pool.get_pandas_conn()
     try:
         sql = f"SELECT * FROM product_analytics WHERE event_ts >= DATE_SUB(NOW(), INTERVAL {since_days} DAY)"
         df = pd.read_sql(sql, conn)
         return df
     finally:
-        pool.return_conn(conn)
+        pool.close_pandas_conn(conn)
 
 def fetch_promotions():
     pool = SimpleMySQLPool.instance()
-    conn = pool.get_conn()
+    conn = pool.get_pandas_conn()
     try:
         df = pd.read_sql("SELECT * FROM promotions", conn)
         return df
     finally:
-        pool.return_conn(conn)
+        pool.close_pandas_conn(conn)
