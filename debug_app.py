@@ -74,4 +74,7 @@ def price_suggestions():
         return json_response({"error": str(e)}, status=500)
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8001, debug=True)
+    print("=== ROUTES LOADED ===")
+    print(app.url_map)
+    print("======================")
+    app.run(host="0.0.0.0", port=8002, debug=True)

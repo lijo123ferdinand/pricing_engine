@@ -6,6 +6,9 @@ import traceback
 import sys
 
 app = Flask(__name__)
+from api.routes import bp as api_bp
+app.register_blueprint(api_bp)
+
 app.config['DEBUG'] = True
 app.config['PROPAGATE_EXCEPTIONS'] = True
 
