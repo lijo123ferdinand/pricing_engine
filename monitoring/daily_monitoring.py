@@ -7,6 +7,11 @@ Daily monitoring script:
 Stores results in monitoring_metrics
 """
 
+import sys
+import os
+# Add parent directory to path to allow imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import pandas as pd
 from services.db_pool import SimpleMySQLPool
 from datetime import datetime, timedelta
@@ -37,8 +42,11 @@ def compute_elasticity_coverage():
     pool = SimpleMySQLPool.instance()
     conn = pool.get_conn()
     try:
-        total_skus = pd.read_sql("SELECT COUNT(DISTINCT sku) as c FROM features_daily", conn).iloc[0]['c']
-        with_elasticity = pd.read_sql("SELECT COUNT(*) as c FROM elasticity_results", conn).iloc[0]['c']
+        with conn.cursor() as cur:
+            cur.execute("SELECT COUNT(DISTINCT sku) as c FROM features_daily")
+            total_skus = cur.fetchone()['c']
+            cur.execute("SELECT COUNT(*) as c FROM elasticity_results")
+            with_elasticity = cur.fetchone()['c']
         coverage = float(with_elasticity)/float(total_skus or 1.0)
         return coverage, int(total_skus), int(with_elasticity)
     finally:

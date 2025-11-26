@@ -97,9 +97,9 @@ def apply_constraints(candidate_df: pd.DataFrame, vendor_rule: Dict, current_pri
     candidate_df = candidate_df.copy()
     reasons = []
     allowed = []
-    min_margin = vendor_rule.get('min_margin') if vendor_rule else PRICING_CONFIG.get('min_margin', 0.10)
-    max_discount = vendor_rule.get('max_discount') if vendor_rule else PRICING_CONFIG.get('max_discount', 0.30)
-    max_daily_change = vendor_rule.get('max_daily_price_change') if vendor_rule else PRICING_CONFIG.get('daily_price_change_limit_pct', 0.15)
+    min_margin = float(vendor_rule.get('min_margin')) if vendor_rule and vendor_rule.get('min_margin') is not None else PRICING_CONFIG.get('min_margin', 0.10)
+    max_discount = float(vendor_rule.get('max_discount')) if vendor_rule and vendor_rule.get('max_discount') is not None else PRICING_CONFIG.get('max_discount', 0.30)
+    max_daily_change = float(vendor_rule.get('max_daily_price_change')) if vendor_rule and vendor_rule.get('max_daily_price_change') is not None else PRICING_CONFIG.get('daily_price_change_limit_pct', 0.15)
     for _, row in candidate_df.iterrows():
         p = row['price']
         rlist = []
