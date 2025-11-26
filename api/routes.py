@@ -21,6 +21,8 @@ def price_suggestions():
     try:
         sku = request.args.get('sku')
         vendor_id = request.args.get('vendor_id')
+        target_price_str = request.args.get('price')
+        target_price = float(target_price_str) if target_price_str else None
         if not sku:
             return json_response({"error": "sku is required"}, status=400)
 
@@ -75,7 +77,7 @@ def price_suggestions():
             pool.return_conn(conn)
 
         api_request_id = make_api_request_id()
-        suggestion = suggest_price_for_sku(sku, base_features=base_features, vendor_id=vendor_id, grid_relative=None, steps=21)
+        suggestion = suggest_price_for_sku(sku, base_features=base_features, vendor_id=vendor_id, grid_relative=None, steps=21, target_price=target_price)
         suggestion['api_request_id'] = api_request_id
 
         # Log API call in DB (api_logs) - optional, don't fail if this errors

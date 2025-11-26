@@ -65,18 +65,29 @@ def get_latest_price_for_sku(sku):
     finally:
         pool.return_conn(conn)
 
-def _generate_candidate_prices(current_price, grid_relative=None, steps=21, min_price=0.5, max_price=10000.0):
+def _generate_candidate_prices(current_price, grid_relative=None, steps=21, min_price=0.5, max_price=10000.0, include_price=None):
     """
     Generate a grid of candidate prices.
     If grid_relative provided, use specific multipliers; otherwise produce symmetric grid around current price.
+    If include_price is provided, ensure it is included in the list.
     """
+    candidates = []
     if grid_relative:
-        return sorted([max(min_price, min(max_price, current_price * (1.0 + rel))) for rel in grid_relative])
-    # else continuous grid
-    pct = PRICING_CONFIG.get('daily_price_change_limit_pct', 0.15)
-    low = max(min_price, current_price * (1 - pct))
-    high = min(max_price, current_price * (1 + pct))
-    return list(np.linspace(low, high, steps))
+        candidates = [max(min_price, min(max_price, current_price * (1.0 + rel))) for rel in grid_relative]
+    else:
+        # else continuous grid
+        pct = PRICING_CONFIG.get('daily_price_change_limit_pct', 0.15)
+        low = max(min_price, current_price * (1 - pct))
+        high = min(max_price, current_price * (1 + pct))
+        candidates = list(np.linspace(low, high, steps))
+    
+    if include_price is not None:
+        # Check if close enough to existing candidates to avoid duplicates
+        is_close = any(abs(c - include_price) < 1e-4 for c in candidates)
+        if not is_close:
+            candidates.append(include_price)
+            
+    return sorted(list(set(candidates)))
 
 def apply_constraints(candidate_df: pd.DataFrame, vendor_rule: Dict, current_price: float):
     """
@@ -156,7 +167,7 @@ def store_price_suggestion(sku, current_price, best_candidate, explanation, cons
     finally:
         pool.return_conn(conn)
 
-def suggest_price_for_sku(sku: str, base_features: dict, vendor_id: str = None, grid_relative: list = None, steps: int = 21, model_name="demand_model"):
+def suggest_price_for_sku(sku: str, base_features: dict, vendor_id: str = None, grid_relative: list = None, steps: int = 21, model_name="demand_model", target_price: float = None):
     """
     Main entrypoint for price suggestion.
     Returns dict with suggested price, details, candidates, elasticity info, model metadata.
@@ -166,7 +177,7 @@ def suggest_price_for_sku(sku: str, base_features: dict, vendor_id: str = None, 
     # 2) get current price
     current_price = get_latest_price_for_sku(sku) or base_features.get('last_price') or 0.0
     # 3) generate candidate prices
-    candidate_prices = _generate_candidate_prices(current_price, grid_relative=grid_relative, steps=steps)
+    candidate_prices = _generate_candidate_prices(current_price, grid_relative=grid_relative, steps=steps, include_price=target_price)
     # 4) vendor rules
     vendor_rule = get_vendor_rules(vendor_id) if vendor_id else None
     # 5) predict units for each candidate price
@@ -195,6 +206,11 @@ def suggest_price_for_sku(sku: str, base_features: dict, vendor_id: str = None, 
         "constraints_applied": [c for c in candidates['constraint_reasons'].unique() if c],
         "generated_at": datetime.utcnow().isoformat()
     }
+
+    if target_price is not None:
+        target_cand = next((c for c in result['candidates'] if abs(c['price'] - target_price) < 1e-4), None)
+        if target_cand:
+            result['target_price_details'] = target_cand
 
     # 11) store suggestion in DB asynchronously if desired; here store synchronously
     try:

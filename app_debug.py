@@ -20,6 +20,8 @@ def test():
 def price_suggestions():
     try:
         sku = request.args.get('sku')
+        target_price_str = request.args.get('price')
+        target_price = float(target_price_str) if target_price_str else None
         print(f"\n=== Request received for SKU: {sku} ===", file=sys.stderr)
         
         if not sku:
@@ -63,7 +65,7 @@ def price_suggestions():
         }
         
         print("Calling suggest_price_for_sku...", file=sys.stderr)
-        suggestion = suggest_price_for_sku(sku, base_features=base_features, vendor_id=None, grid_relative=None, steps=21)
+        suggestion = suggest_price_for_sku(sku, base_features=base_features, vendor_id=None, grid_relative=None, steps=21, target_price=target_price)
         
         print(f"Suggestion generated: {suggestion.get('suggested_price')}", file=sys.stderr)
         
